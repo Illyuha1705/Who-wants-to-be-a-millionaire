@@ -1,0 +1,54 @@
+.game
+    background-color: $main-bg
+    height: 100vh
+    padding-top: 50px
+    &__wrapper
+        display: flex
+        align-items: flex-end
+    &__questions 
+        width: 65%
+    &__question
+        margin-top: 150px
+        padding: 40px 0
+        background-color: $main-bg
+        color: white
+        @include center
+        font-size: 32px
+        font-weight: 700
+        box-shadow: 3px 3px 13px $purple, -3px -3px 13px $purple
+        border-radius: 10px
+    &__answers
+        @include sb
+        flex-wrap: wrap
+        margin-top: 100px
+    &__answer
+        @include center
+        width: 45%
+        padding: 20px 0
+        border: 2px solid #11bbe7
+        margin-bottom: 30px
+        color: white
+        background-color: $main-bg
+        border-radius: 15px
+        font-size: 20px
+        cursor: pointer
+        &:hover
+            transform: scale(1.005)
+    &__prize
+        margin-left: 10%
+        
+        
+    &__levels
+        display: flex
+        flex-direction: column-reverse
+        color: white
+        line-height: 45px
+        font-size: 30px
+        
+        li
+            @include sb
+            width: 250px
+            
+
+
+    

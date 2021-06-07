@@ -48,7 +48,7 @@ function StartGame() {
 
     let answer;
     do {
-        answer = prompt(`A: ${answer1.a}, B: ${answer1.b}, C: ${answer1.c}, D: ${answer1.d}`, 0);
+        answer = prompt(`A: ${answer1.a}, B: ${answer1.b}, C: ${answer1.c}, D: ${answer1.d}`, '0');
     } while (answer);
     
     CheckInput(answer);
