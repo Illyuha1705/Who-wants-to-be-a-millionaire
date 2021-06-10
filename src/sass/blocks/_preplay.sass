@@ -1,0 +1,98 @@
+.preplay
+    position: relative
+    display: none
+    height: 100vh
+    background-color:#131920
+    
+    &__main
+        position: absolute
+        width: 300px
+        height: 200px
+        background-color: transparent
+        top: 50%
+        left: 50%
+        transform: translate(-50%, -50%)
+    &__start
+        position: relative
+        @include center
+        margin: 15px auto
+        font-size: 25px
+        font-weight: 700
+        padding: 18px 25px
+        box-shadow: 0 2px 5px #11bbe7
+        border: 0
+        border-bottom: 4px solid #11bbe7
+        border-radius: 10px
+        background: linear-gradient(to bottom right, #84fab0 0%, #3ac6ea 51%, #84fab0 100%)
+        transition: 0.4s
+        cursor: pointer
+        &::after
+            content: 'Начать игру'
+            @include center
+            position: absolute
+            top: 0
+            left: 0
+            right: 0
+            bottom: 0
+            background: linear-gradient(to top left, #3ac6ea 0%, #84fab0 51%, #3ac6ea 100%)
+            z-index: -1
+            opacity: 0
+            transition: .3s ease-in-out
+            border-radius: 10px 
+        &:hover::after
+            opacity: 1
+            z-index: 10
+            
+    &__list
+        position: absolute
+        top: 50%
+        left: 50%
+        transform: translate(-50%, 20%)
+    &__input
+        position: relative
+        margin-top: 5px
+        input
+            width: 220px
+            padding: 10px 12px
+            border: 1px solid #11bbe7
+            border-radius: 5px
+            font-size: 18px
+            outline: none
+            background: white
+            &:focus ~ label
+                top: -27px
+                left: 0
+                color: #03e9f4
+                font-size: 14px
+        label
+            position: absolute
+            top: 0
+            left: 0
+            padding: 10px 12px
+            font-size: 18px
+            pointer-events: none
+            transition: .5s
+            color: grey
+    &__title-list
+        margin-top: 17px
+        text-align: center
+        color: #03e9f4
+        position: relative
+        &::before
+            content: ''
+            display: block
+            position: absolute
+            top: -4px
+            height: 4px
+            width: 100%
+            background-color: #03e9f4
+            border-radius: 50% 50% 0 0
+        &::after
+            content: ''
+            display: block
+            position: absolute
+            bottom: -5px
+            height: 4px
+            width: 100%
+            background-color: #03e9f4
+            border-radius: 0 0 50% 50%
