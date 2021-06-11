@@ -8,6 +8,7 @@ const questionWrapper = document.querySelector('.game__questions_wrapper');
 const gameOver = document.querySelector('.game-over');
 const levels = document.querySelectorAll('.game__level');
 const exit = document.querySelector('.exit');
+const exitBtn = document.querySelector('.game-over__btn');
 const listArr = [...levels];
 let localResults = {};
 
@@ -29,12 +30,10 @@ const interval = setInterval(() => {
 btn.addEventListener('click', getUser);
 
 function getUser() {
-    let check = input.value;
-
-    if (check) {
-        localStorage.setItem(`user`, JSON.stringify(check));
-        check = '';
+    if (input.value) {
+        localStorage.setItem(`user`, JSON.stringify(input.value));
         toggleDisplay('.preplay', '.game');
+        input.value = '';
     }
 }
 
@@ -46,13 +45,8 @@ function toggleDisplay(hide, show) {
     const hidden = document.querySelector(hide);
     const shown = document.querySelector(show);
 
-    let checked = checkInput();
-    console.log(checked);
-
-    if (checked) {
-        hidden.style.display = 'none';
-        shown.style.display = 'block';
-    }
+    hidden.style.display = 'none';
+    shown.style.display = 'block';
 }
 
 const DATA = [{
@@ -136,7 +130,7 @@ function setQuestions(index = 0) {
             return `
                 <button class="game__answer" data-value="${answer.value}">${answer.answer}</button>
             `
-        })
+        }).join('');
     }
 
     questionWrapper.innerHTML = `  
@@ -154,26 +148,37 @@ setQuestions();
 
 document.addEventListener('click', e => {
     if (e.target.classList.contains('game__answer')) {
+        const index = document.querySelector('.game__question_box');
+        const dataIndex = +index.dataset.index;
 
         if (e.target.dataset.value === 'false') {
             e.target.classList.add('incorrect');
 
-            theEnd();
-            return
+            const showTrue = findTrue(dataIndex);
+            const btns = document.querySelectorAll('.game__answer');
+
+            setTimeout(() => {
+                btns[showTrue].classList.add('correct');
+            }, 2000);
+            setTimeout(theEnd, 4000);
+            
             
         } else {
-            e.target.classList.add('correct')
-        }
+            e.target.classList.add('correct');
 
-        const index = document.querySelector('.game__question_box');
-        const dataIndex = +index.dataset.index;
-
-        if(dataIndex < DATA.length) {
-            listArr[dataIndex].classList.remove('current');
-            setQuestions(dataIndex + 1);
+            if(dataIndex < DATA.length) {
+                listArr[dataIndex].classList.remove('current');
+                listArr[dataIndex].classList.add('past');
+                
+                setTimeout(setQuestions, 2000, dataIndex + 1);
+            }
         }
     }
 })
+
+function findTrue(index) {
+    return DATA[index].answers.findIndex(item => item.value);
+}
 
 function theEnd() {
     gameOver.style.display = 'block';
@@ -181,4 +186,14 @@ function theEnd() {
 
 exit.addEventListener('click', () => {
     theEnd();
+})
+
+exitBtn.addEventListener('click', () => {
+    gameOver.style.display = 'none';
+    toggleDisplay('.game', '.preplay');
+    setQuestions();
+    listArr.forEach(item => {
+        item.classList.remove('current');
+        item.classList.remove('past');
+    })
 })
