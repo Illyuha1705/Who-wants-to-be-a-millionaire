@@ -13,7 +13,9 @@ const timer = document.querySelector('.timer');
 const prize = document.querySelector('.game-over__prize');
 const step = document.querySelector('.game-over__sum');
 const finalMes = document.querySelector('.game-over__finalMes');
+const winnersList = document.querySelector('.preplay__winners_list');
 const listArr = [...levels];
+let users = [];
 let time;
 
 let localResults = {};
@@ -464,14 +466,14 @@ document.addEventListener('click', e => {
             e.target.classList.add('correct');
             clearInterval(time);
 
-            if(dataIndex === DATA.length - 1) theEnd();
+            if (dataIndex === DATA.length - 1) theEnd();
 
             if (dataIndex < DATA.length - 1) {
                 listArr[dataIndex].classList.remove('current');
                 listArr[dataIndex].classList.add('past');
 
                 setTimeout(setQuestions, 2000, dataIndex + 1);
-            } 
+            }
         }
     }
 })
@@ -502,6 +504,27 @@ function theEnd() {
     finalMes.textContent = speach;
 
     clearInterval(time);
+
+    let checkIfExists = users.find(foundUser => foundUser.name === user);
+    
+    if(!checkIfExists) {
+        users.push({
+            name: user,
+            score: level
+        });
+    }
+
+    console.log(users);
+    
+    winnersList.innerHTML = '';
+    users.forEach(user => {
+        winnersList.insertAdjacentHTML('beforeend', `
+            <div class="preplay__about_winner" data-userName="${JSON.parse(user.name)}">
+                <div class="user-name">${JSON.parse(user.name)}</div>
+                <div class="user-score">${user.score}</div>
+            </div>
+        `)
+    })
 }
 
 exit.addEventListener('click', () => {
@@ -536,6 +559,10 @@ function setTimer() {
             timer.textContent = i;
         }
     }, 1000)
-
-
 }
+
+preplay.addEventListener('click', e => {
+    if(e.target.classList.contains('preplay__about_winner')) {        
+        input.value = e.target.dataset.username; 
+    }
+});
