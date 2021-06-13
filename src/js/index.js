@@ -14,10 +14,13 @@ const prize = document.querySelector('.game-over__prize');
 const step = document.querySelector('.game-over__sum');
 const finalMes = document.querySelector('.game-over__finalMes');
 const winnersList = document.querySelector('.preplay__winners_list');
+const friendCall = document.querySelector('.header__call');
+const pluralClickMode = document.querySelector('.header__fifty');
+const deleteTwoAnswers = document.querySelector('.header__cross');
 const listArr = [...levels];
+let pluralClick = false;
 let users = [];
 let time;
-
 let localResults = {};
 
 loader.style.opacity = 0;
@@ -451,6 +454,11 @@ document.addEventListener('click', e => {
 
         if (e.target.dataset.value === 'false') {
             e.target.classList.add('incorrect');
+            if(pluralClick) {
+                pluralClick = false;
+                pluralClickMode.style.pointerEvents = 'none';
+                return
+            }
             clearInterval(time);
 
             const showTrue = findTrue(dataIndex);
@@ -549,7 +557,7 @@ function setTimer() {
 
         if (i < 0) {
             clearInterval(time);
-            gameOver.style.display = 'block';
+            theEnd();
 
         } else if (i < 11) {
             timer.style.color = 'red';
@@ -566,3 +574,44 @@ preplay.addEventListener('click', e => {
         input.value = e.target.dataset.username; 
     }
 });
+
+friendCall.addEventListener('click', () => {
+    const btns = document.querySelectorAll('.game__answer');
+    btns[Math.floor(Math.random()*btns.length)].classList.add('friendSaid');  
+    friendCall.style.pointerEvents = 'none';
+}); 
+
+pluralClickMode.onclick = function() {
+    pluralClick = true;
+}
+
+deleteTwoAnswers.onclick = function() {
+    const index = document.querySelector('.game__question_box');
+    const dataIndex = +index.dataset.index;
+
+
+    for(let i = 0; i < DATA[dataIndex].answers.length; i++) {
+        if(!DATA[dataIndex].answers[i].value && DATA[dataIndex].answers.length > 1) {
+            DATA[dataIndex].answers.splice(i, 1);
+        }
+    }
+    const renderAnswers = () => {
+        return DATA[dataIndex].answers.map(answer => {
+            return `
+                <button class="game__answer" data-value="${answer.value}">${answer.answer}</button>
+            `
+        }).join('');
+    }
+
+    questionWrapper.innerHTML = `  
+        <div class="game__question_box" data-index="${dataIndex}">
+            <div class="game__question">${DATA[dataIndex].question}</div>
+        
+            <div class="game__answers">
+                ${renderAnswers()}
+            </div>
+        </div>
+    `
+    deleteTwoAnswers.style.pointerEvents = 'none';
+
+}
