@@ -516,13 +516,11 @@ function theEnd() {
     let checkIfExists = users.find(foundUser => foundUser.name === user);
     
     if(!checkIfExists) {
-        users.push({
+        users.unshift({
             name: user,
             score: level
         });
     }
-
-    console.log(users);
     
     winnersList.innerHTML = '';
     users.forEach(user => {
@@ -533,6 +531,10 @@ function theEnd() {
             </div>
         `)
     })
+
+    friendCall.style.pointerEvents = 'auto';
+    pluralClickMode.style.pointerEvents = 'auto';
+    deleteTwoAnswers.style.pointerEvents = 'auto';
 }
 
 exit.addEventListener('click', () => {
@@ -588,15 +590,13 @@ pluralClickMode.onclick = function() {
 deleteTwoAnswers.onclick = function() {
     const index = document.querySelector('.game__question_box');
     const dataIndex = +index.dataset.index;
+    const correctAnswer = DATA[dataIndex].answers.find(answer => answer.value);
+    const filteredAnswers = [correctAnswer];
+    const incorrectAnswers = DATA[dataIndex].answers.filter(answer => !answer.value);
+    filteredAnswers.push(incorrectAnswers[Math.floor(Math.random()*incorrectAnswers.length)]);
 
-
-    for(let i = 0; i < DATA[dataIndex].answers.length; i++) {
-        if(!DATA[dataIndex].answers[i].value && DATA[dataIndex].answers.length > 1) {
-            DATA[dataIndex].answers.splice(i, 1);
-        }
-    }
     const renderAnswers = () => {
-        return DATA[dataIndex].answers.map(answer => {
+        return filteredAnswers.map(answer => {
             return `
                 <button class="game__answer" data-value="${answer.value}">${answer.answer}</button>
             `
