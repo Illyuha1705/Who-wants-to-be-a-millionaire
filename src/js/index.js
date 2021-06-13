@@ -8,15 +8,16 @@ const questionWrapper = document.querySelector('.game__questions_wrapper');
 const gameOver = document.querySelector('.game-over');
 const levels = document.querySelectorAll('.game__level');
 const exit = document.querySelector('.exit');
-const exitBtn = document.querySelector('.game-over__btn');
+const goToLobby = document.querySelector('.game-over__btn');
 const timer = document.querySelector('.timer');
 const prize = document.querySelector('.game-over__prize');
 const step = document.querySelector('.game-over__sum');
 const finalMes = document.querySelector('.game-over__finalMes');
 const winnersList = document.querySelector('.preplay__winners_list');
-const friendCall = document.querySelector('.header__call');
+const friendCallMode = document.querySelector('.header__call');
 const pluralClickMode = document.querySelector('.header__fifty');
-const deleteTwoAnswers = document.querySelector('.header__cross');
+const deleteTwoAnswersMode = document.querySelector('.header__cross');
+
 const listArr = [...levels];
 let pluralClick = false;
 let users = [];
@@ -25,10 +26,10 @@ let localResults = {};
 
 loader.style.opacity = 0;
 
-setTimeout(() => {
+setTimeout(() => { // loader
     preplay.style.display = 'block';
     loader.style.display = 'none';
-}, 200)
+}, 2500)
 
 const interval = setInterval(() => {
     loader.style.opacity = parseFloat(loader.style.opacity) + 0.25;
@@ -38,8 +39,6 @@ const interval = setInterval(() => {
     }
 }, 500);
 
-btn.addEventListener('click', getUser);
-
 function getUser() {
     if (input.value) {
         localStorage.setItem(`user`, JSON.stringify(input.value));
@@ -47,10 +46,6 @@ function getUser() {
         toggleDisplay('.preplay', '.game');
         input.value = '';
     }
-}
-
-function checkInput() {
-    return Boolean(input.value);
 }
 
 function toggleDisplay(hide, show) {
@@ -422,12 +417,9 @@ const DATA = [{
     },
 ]
 
-function setQuestions(index = 0) {
-    setTimer();
-    listArr[index].classList.add('current');
-
+function displayQuestion(questions, index) {
     const renderAnswers = () => {
-        return DATA[index].answers.map(answer => {
+        return questions.map(answer => {
             return `
                 <button class="game__answer" data-value="${answer.value}">${answer.answer}</button>
             `
@@ -445,64 +437,76 @@ function setQuestions(index = 0) {
     `
 }
 
+function setQuestions(index = 0) {
+    setTimer();
+    listArr[index].classList.add('current'); // shows current step
 
+    displayQuestion(DATA[index].answers, index);
+}
 
-document.addEventListener('click', e => {
-    if (e.target.classList.contains('game__answer')) {
-        const index = document.querySelector('.game__question_box');
-        const dataIndex = +index.dataset.index;
-
-        if (e.target.dataset.value === 'false') {
-            e.target.classList.add('incorrect');
-            if(pluralClick) {
-                pluralClick = false;
-                pluralClickMode.style.pointerEvents = 'none';
-                return
-            }
-            clearInterval(time);
-
-            const showTrue = findTrue(dataIndex);
-            const btns = document.querySelectorAll('.game__answer');
-
-            setTimeout(() => {
-                btns[showTrue].classList.add('correct');
-            }, 2000);
-            setTimeout(theEnd, 4000);
-
-
-        } else {
-            e.target.classList.add('correct');
-            clearInterval(time);
-
-            if (dataIndex === DATA.length - 1) theEnd();
-
-            if (dataIndex < DATA.length - 1) {
-                listArr[dataIndex].classList.remove('current');
-                listArr[dataIndex].classList.add('past');
-
-                setTimeout(setQuestions, 2000, dataIndex + 1);
-            }
-        }
-    }
-})
+btn.onclick = getUser; // start game
 
 function findTrue(index) {
     return DATA[index].answers.findIndex(item => item.value);
 }
 
+function enableModes(...modes) {
+    modes.forEach(mode => mode.style.pointerEvents = 'auto');
+    modes.forEach(mode => mode.childNodes[1].style.boxShadow = '2px 2px 10px #8b00ff, -2px -2px 10px #8b00ff');
+}
+
+document.addEventListener('click', e => {
+    if (e.target.classList.contains('game__answer')) {
+        const question = document.querySelector('.game__question_box');
+        const index = +question.dataset.index;
+
+        if (e.target.dataset.value === 'false') {
+            e.target.classList.add('incorrect');
+            if(pluralClick) { // if we use plural mode
+                pluralClick = false;
+                pluralClickMode.style.pointerEvents = 'none';
+                return
+            }
+
+            clearInterval(time);
+
+            const trueAnswerIndex = findTrue(index);
+            const btns = document.querySelectorAll('.game__answer');
+
+            setTimeout(() => {
+                btns[trueAnswerIndex].classList.add('correct');
+            }, 2000);
+            setTimeout(theEnd, 4000);
+
+        } else {
+            e.target.classList.add('correct');
+            clearInterval(time);
+
+            if (index + 1 === DATA.length) theEnd();
+
+            if (index + 1 < DATA.length) {
+                listArr[index].classList.remove('current');
+                listArr[index].classList.add('past');
+
+                setTimeout(setQuestions, 2000, index + 1);
+            }
+        }
+    }
+})
+
 function theEnd() {
     gameOver.style.display = 'block';
 
-    const index = document.querySelector('.game__question_box');
-    const dataIndex = +index.dataset.index;
+    const question = document.querySelector('.game__question_box');
+    const index = +question.dataset.index;
     const user = localStorage.getItem(`user`);
-    let level = +listArr[dataIndex].dataset.level;
+    let level = +listArr[index].dataset.level;
     let sum = 0;
     let speach = 'Ну вы пытались... Попробуйте ещё раз)';
 
-    if (dataIndex > 4 && dataIndex <= 9) sum = 1000;
-    if (dataIndex >= 10 && dataIndex <= 13) sum = 32000;
-    if (dataIndex === 14) {
+    if (index > 4 && index <= 9) sum = 1000;
+    if (index >= 10 && index <= 13) sum = 32000;
+    if (index === 14) {
         sum = 1000000;
         speach = 'Поздравляем с победой. Забирайте Ваши деньги!))'
     }
@@ -513,13 +517,15 @@ function theEnd() {
 
     clearInterval(time);
 
-    let checkIfExists = users.find(foundUser => foundUser.name === user);
+    let indexOfExistsUser = users.findIndex(foundUser => foundUser.name === user);
     
-    if(!checkIfExists) {
+    if(indexOfExistsUser === -1) {
         users.unshift({
             name: user,
             score: level
         });
+    } else {
+        users[indexOfExistsUser].score = level;
     }
     
     winnersList.innerHTML = '';
@@ -532,86 +538,76 @@ function theEnd() {
         `)
     })
 
-    friendCall.style.pointerEvents = 'auto';
-    pluralClickMode.style.pointerEvents = 'auto';
-    deleteTwoAnswers.style.pointerEvents = 'auto';
+    enableModes(friendCallMode, pluralClickMode, deleteTwoAnswersMode);
 }
 
-exit.addEventListener('click', () => {
-    theEnd();
-})
+exit.onclick = theEnd;
 
-exitBtn.addEventListener('click', () => {
+goToLobby.onclick = function() {
     gameOver.style.display = 'none';
     toggleDisplay('.game', '.preplay');
+
     listArr.forEach(item => {
         item.classList.remove('current');
         item.classList.remove('past');
     })
-})
+}
 
 function setTimer() {
     timer.style.color = '#11bbe7';
     timer.textContent = 30;
-    let i = 30;
+    let seconds = 30;
     time = setInterval(() => {
-        i--;
+        seconds--;
 
-        if (i < 0) {
+        if (seconds < 0) {
             clearInterval(time);
             theEnd();
 
-        } else if (i < 11) {
+        } else if (seconds < 11) {
             timer.style.color = 'red';
-            timer.textContent = i;
+            timer.textContent = seconds;
 
         } else {
-            timer.textContent = i;
+            timer.textContent = seconds;
         }
     }, 1000)
 }
 
-preplay.addEventListener('click', e => {
+preplay.onclick = e => { // sets input value from winners list
     if(e.target.classList.contains('preplay__about_winner')) {        
         input.value = e.target.dataset.username; 
     }
-});
+};
 
-friendCall.addEventListener('click', () => {
+friendCallMode.onclick = () => {
     const btns = document.querySelectorAll('.game__answer');
-    btns[Math.floor(Math.random()*btns.length)].classList.add('friendSaid');  
-    friendCall.style.pointerEvents = 'none';
-}); 
+    const randomIndex = Math.floor(Math.random()*btns.length);
+
+    btns[randomIndex].classList.add('friendSaid');  
+    friendCallMode.childNodes[1].style.boxShadow = 'none';
+    friendCallMode.style.pointerEvents = 'none';
+
+    setTimeout(() => {
+        btns[randomIndex].classList.remove('friendSaid');
+    }, 1500);
+}; 
 
 pluralClickMode.onclick = function() {
+    pluralClickMode.childNodes[1].style.boxShadow = 'none';
     pluralClick = true;
 }
 
-deleteTwoAnswers.onclick = function() {
-    const index = document.querySelector('.game__question_box');
-    const dataIndex = +index.dataset.index;
-    const correctAnswer = DATA[dataIndex].answers.find(answer => answer.value);
+deleteTwoAnswersMode.onclick = function() {
+    const question = document.querySelector('.game__question_box');
+    const index = +question.dataset.index;
+    const correctAnswer = DATA[index].answers.find(answer => answer.value);
     const filteredAnswers = [correctAnswer];
-    const incorrectAnswers = DATA[dataIndex].answers.filter(answer => !answer.value);
+    const incorrectAnswers = DATA[index].answers.filter(answer => !answer.value);
+
     filteredAnswers.push(incorrectAnswers[Math.floor(Math.random()*incorrectAnswers.length)]);
 
-    const renderAnswers = () => {
-        return filteredAnswers.map(answer => {
-            return `
-                <button class="game__answer" data-value="${answer.value}">${answer.answer}</button>
-            `
-        }).join('');
-    }
-
-    questionWrapper.innerHTML = `  
-        <div class="game__question_box" data-index="${dataIndex}">
-            <div class="game__question">${DATA[dataIndex].question}</div>
-        
-            <div class="game__answers">
-                ${renderAnswers()}
-            </div>
-        </div>
-    `
-    deleteTwoAnswers.style.pointerEvents = 'none';
-
+    displayQuestion(filteredAnswers, index);
+    deleteTwoAnswersMode.childNodes[1].style.boxShadow = 'none';
+    deleteTwoAnswersMode.style.pointerEvents = 'none';
 }

@@ -2,16 +2,16 @@
     display: none
     background-color: $main-bg
     height: 100vh
-    padding-top: 50px
+    padding-top: 2%
     box-sizing: border-box
     &__wrapper
         display: flex
-        align-items: flex-end
+        align-items: center
     &__questions
         width: 65%
     &__question
-        margin-top: 150px
-        padding: 40px 0
+        margin-top: 10%
+        padding: 3% 25px
         background-color: $main-bg
         color: white
         @include center
@@ -22,7 +22,7 @@
     &__answers
         @include sb
         flex-wrap: wrap
-        margin-top: 100px
+        margin-top: 10%
     &__answer
         @include center
         width: 45%
@@ -43,7 +43,7 @@
         display: flex
         flex-direction: column-reverse
         color: white
-        line-height: 45px
+        line-height: 140%
         font-size: 30px
 
         li
@@ -52,21 +52,23 @@
 
 @keyframes blink
     100%
-        background-color: #2dd624
+        background-color: #2dd624 
 
 .correct
     background-color: green
     font-weight: bold
-    animation: blink .5s linear
+    animation: blink .5s linear 
     animation-iteration-count: 3
     animation-fill-mode: forwards
 
+
 @keyframes blink2
     100%
-        background-color: #b73131
+        background-color: #b73131 
 
 .incorrect
-    animation: blink2 .5s linear infinite
+    background-color: b73131
+    animation: blink2 .5s linear infinite 
     animation-iteration-count: 3
     animation-fill-mode: forwards
 
@@ -90,3 +92,20 @@
         background-color: orange
     100% 
         background-color: transparent
+
+
+@media screen and ( max-width: 1500px)
+    .header
+        height: 120px
+        &__btn
+            width: 80px
+            height: 80px
+    .game
+        &__question
+            font-size: 28px
+        &__levels
+            line-height: 110%
+        &__answer
+            margin-bottom: 20px
+
+    
